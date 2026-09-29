@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Dashboard Audit-System v4 — Inspektorat II</title><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       background: #f0f2f5; color: #1a1a2e; font-size: 14px; line-height: 1.5; }
+.header { background: linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);
+          color: white; padding: 28px 32px 24px; }
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .sub { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid #cbd5e1; }
+.tab { padding: 10px 20px; cursor: pointer; background: #e2e8f0; border-radius: 8px 8px 0 0;
+       font-weight: 500; color: #475569; border: none; font-size: 14px; }
+.tab.active { background: #0f3460; color: white; }
+.tab:hover:not(.active) { background: #cbd5e1; }
+.panel { display: none; }
+.panel.active { display: block; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+            gap: 16px; margin-bottom: 24px; }
+.kpi { background: white; padding: 18px; border-radius: 8px;
+       box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #0f3460; }
+.kpi .label { font-size: 11px; color: #64748b; text-transform: uppercase;
+              letter-spacing: 0.5px; margin-bottom: 4px; }
+.kpi .value { font-size: 28px; font-weight: 700; color: #0f3460; }
+.kpi.tinggi { border-left-color: #dc2626; }
+.kpi.tinggi .value { color: #dc2626; }
+.kpi.sedang { border-left-color: #f59e0b; }
+.kpi.sedang .value { color: #f59e0b; }
+.kpi.done { border-left-color: #16a34a; }
+.kpi.done .value { color: #16a34a; }
+.card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        margin-bottom: 16px; overflow: hidden; }
+.card-header { padding: 14px 18px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+               font-weight: 600; color: #0f3460; }
+.card-body { padding: 16px 18px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #0f3460; color: white; text-align: left; padding: 10px 12px; font-weight: 600; }
+td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+tr:hover td { background: #f8fafc; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;
+         font-weight: 600; text-transform: uppercase; }
+.badge-tinggi { background: #fee2e2; color: #dc2626; }
+.badge-sedang { background: #fef3c7; color: #d97706; }
+.badge-rendah { background: #dbeafe; color: #2563eb; }
+.badge-done { background: #dcfce7; color: #16a34a; }
+.badge-active { background: #fef3c7; color: #d97706; }
+.badge-belum { background: #fee2e2; color: #dc2626; }
+.badge-sedang-tl { background: #fed7aa; color: #ea580c; }
+.badge-selesai { background: #dcfce7; color: #16a34a; }
+.empty { color: #94a3b8; font-style: italic; padding: 16px; text-align: center; }
+.muted { color: #64748b; font-size: 12px; }
+.timestamp { color: #94a3b8; font-size: 11px; }
+.search-box { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1;
+              border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+.dist-badge { display: inline-block; padding: 1px 6px; background: #e0e7ff; color: #4338ca;
+              border-radius: 3px; font-size: 11px; margin-right: 4px; }
+.temuan-card { background: #f8fafc; border-left: 3px solid #0f3460; padding: 12px 14px;
+               margin: 10px 0; border-radius: 4px; font-size: 13px; }
+.temuan-head { color: #475569; font-size: 12px; margin-bottom: 6px; }
+.temuan-judul { font-weight: 600; color: #0f3460; margin-bottom: 10px; font-size: 14px; }
+.kksa-row { display: grid; grid-template-columns: 110px 1fr; gap: 12px; margin: 6px 0;
+            padding: 4px 0; border-bottom: 1px dashed #e2e8f0; }
+.kksa-row:last-child { border-bottom: none; }
+.kksa-label { font-weight: 600; color: #475569; text-transform: uppercase;
+              font-size: 11px; padding-top: 2px; }
+.kksa-val { color: #1a1a2e; line-height: 1.5; }
+details { padding: 8px 0; }
+summary { cursor: pointer; padding: 6px 0; font-weight: 500; }
+summary:hover { color: #0f3460; }
+</style></head><body><div class="header"><h1>Dashboard Audit-System v4 — Inspektorat II</h1><div class="sub">Pemantauan ISU/Risiko · TLHP · Audit Trail · Hasil Pengawasan KKP &amp; LHP — generated 2026-05-02 19:43 WIB</div></div><div class="container"><div class="tabs"><button class="tab active" id="tab-isu" onclick="showTab('isu')">📋 Pemantauan ISU &amp; Risiko (18)</button><button class="tab" id="tab-tlhp" onclick="showTab('tlhp')">📌 TLHP (2)</button><button class="tab" id="tab-trail" onclick="showTab('trail')">🔍 Audit Trail (15)</button><button class="tab" id="tab-pgw" onclick="showTab('pgw')">📊 Hasil Pengawasan (2)</button></div><div class="panel active" id="panel-isu">
+    <div class="kpi-grid">
+      <div class="kpi tinggi"><div class="label">Prioritas Tinggi</div><div class="value">7</div></div>
+      <div class="kpi sedang"><div class="label">Prioritas Sedang</div><div class="value">5</div></div>
+      <div class="kpi"><div class="label">Total ISU/Risiko</div><div class="value">18</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Daftar Card Pemantauan ISU & Risiko</div>
+      <div class="card-body">
+        <input class="search-box" id="search-isu" placeholder="Filter..." onkeyup="filterTable('search-isu','tbl-isu')">
+        <table id="tbl-isu">
+          <thead><tr><th>Card / Entitas</th><th>Prioritas</th><th>Status / Progres</th><th>Sumber</th></tr></thead>
+          <tbody><tr>
+            <td><strong>TKPPSE</strong></td>
+            <td><span class="badge badge-sedang">Sedang</span></td>
+            <td>[Kelompok Wasdig (4 card)] (a) Pengadaan 2026; (b) Pengadaan 2025; (c) Redesain; (d) TLHP Kinerja BPK; (e) TLHP LK BPK; (f) Inv</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>CSE</strong></td>
+            <td><span class="badge badge-tinggi">Tinggi</span></td>
+            <td>[Kelompok Wasdig (4 card)] (a) Pengadaan Server 2026; (b) Tumpang Tindih CNS dan CSE; (c) TLHP BPK 2025</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>PSE dan PSrE</strong></td>
+            <td><span class="badge badge-sedang">Sedang</span></td>
+            <td>[Kelompok Wasdig (4 card)] (a) Pengadaan PSrE; (b) Wikimedia; (c) Magdalene.co (Pers)</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>PANDI</strong></td>
+            <td><span class="badge badge-sedang">Sedang</span></td>
+            <td>[Kelompok Wasdig (4 card)] (a) TLHP Jamintel</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>DBS</strong></td>
+            <td><span class="badge badge-sedang">Sedang</span></td>
+            <td>[Kelompok Ekosdig (6 card)] (a) Alih Status; (b) Pembatalan Tender</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Garuda Spark</strong></td>
+            <td><span class="badge badge-tinggi">Tinggi</span></td>
+            <td>[Kelompok Ekosdig (6 card)] (a) Pengadaan; (b) Tata Kelola</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Bantuan IoT</strong></td>
+            <td><span class="badge badge-sedang">Sedang</span></td>
+            <td>[Kelompok Ekosdig (6 card)] (a) Pengadaan</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>PSO POS</strong></td>
+            <td><span class="badge badge-tinggi">Tinggi</span></td>
+            <td>[Kelompok Ekosdig (6 card)] (a) TLHP BPKH 2025; (b) Akuntabilitas Belanja 2026</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>IGRS</strong></td>
+            <td><span class="badge badge-tinggi">Tinggi</span></td>
+            <td>[Kelompok Ekosdig (6 card)] (a) Tata Kelola dan Kinerja</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Perangkat QOS</strong></td>
+            <td><span class="badge badge-tinggi">Tinggi</span></td>
+            <td>[Kelompok Ekosdig (6 card)] (a) Pengadaan</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>SAKIP</strong></td>
+            <td><span class="badge badge-tinggi">Tinggi</span></td>
+            <td>[Kelompok Kementerian (2 card)] (a) Pemenuhan AoI; (b) Progres Pengisian 2026</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>SPIP</strong></td>
+            <td><span class="badge badge-tinggi">Tinggi</span></td>
+            <td>[Kelompok Kementerian (2 card)] (a) Pemenuhan AoI; (b) Progres Pengisian 2026</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Isi uraian Isu/Risiko, Progress, Rencana Aksi pada masing-masing card</strong></td>
+            <td><span class="badge ">?</span></td>
+            <td>[Kelompok Kementerian (2 card)] Penanggung jawab tiap card</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Akses file SAKTI yang sebelumnya tidak dapat diakses</strong></td>
+            <td><span class="badge ">?</span></td>
+            <td>[Kelompok Kementerian (2 card)] Tim Audit AI</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Sampel RKKL tambahan untuk TOR RAB Audit AI</strong></td>
+            <td><span class="badge ">?</span></td>
+            <td>[Kelompok Kementerian (2 card)] Tim Audit AI</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Realisasi akses OneDrive untuk sinkronisasi data audit</strong></td>
+            <td><span class="badge ">?</span></td>
+            <td>[Kelompok Kementerian (2 card)] Tim Sekretariat / IT</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Upload ke Wiki: dokumen Desember, struktur organisasi, pagu, indikator, PKPT 2026</strong></td>
+            <td><span class="badge ">?</span></td>
+            <td>[Kelompok Kementerian (2 card)] Tim Wiki</td>
+            <td><span class="muted">wiki</span></td>
+        </tr><tr>
+            <td><strong>Perpanjangan Surat Tugas Reviu Renja</strong></td>
+            <td><span class="badge ">?</span></td>
+            <td>[Kelompok Kementerian (2 card)] Sekretariat</td>
+            <td><span class="muted">wiki</span></td>
+        </tr></tbody>
+        </table>
+      </div>
+    </div>
+    </div><div class="panel" id="panel-tlhp">
+    <div class="kpi-grid">
+      <div class="kpi belum"><div class="label">Belum Ditindaklanjuti</div><div class="value">2</div></div>
+      <div class="kpi sedang"><div class="label">Sedang Ditindaklanjuti</div><div class="value">0</div></div>
+      <div class="kpi done"><div class="label">Selesai/Ditutup</div><div class="value">0</div></div>
+      <div class="kpi"><div class="label">Total Rekomendasi</div><div class="value">2</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Index Rekomendasi TLHP</div>
+      <div class="card-body">
+        <input class="search-box" id="search-tlhp" placeholder="Filter..." onkeyup="filterTable('search-tlhp','tbl-tlhp')">
+        <table id="tbl-tlhp">
+          <thead><tr><th>ID Rek</th><th>Penugasan</th><th>Auditi</th><th>Rekomendasi</th><th>Status</th><th>Deadline</th></tr></thead>
+          <tbody><tr>
+            <td><code>REK-contoh-happy-path-sa-01</code></td>
+            <td>lhp-contoh-happy-path-saipi</td>
+            <td>KAK SATRIA-1</td>
+            <td>Lengkapi KAK dengan indikator SLA terukur.</td>
+            <td><span class="badge badge-belum">BELUM_DITINDAKLANJUTI</span></td>
+            <td><span class="muted">(TBD oleh auditor)</span></td>
+        </tr><tr>
+            <td><code>REK-contoh-happy-path-sa-02</code></td>
+            <td>lhp-contoh-happy-path-saipi</td>
+            <td>KAK SATRIA-1</td>
+            <td>Mintakan persetujuan ulang dari PA/KPA.</td>
+            <td><span class="badge badge-belum">BELUM_DITINDAKLANJUTI</span></td>
+            <td><span class="muted">(TBD oleh auditor)</span></td>
+        </tr></tbody>
+        </table>
+      </div>
+    </div>
+    </div><div class="panel" id="panel-trail">
+    <div class="kpi-grid">
+      <div class="kpi done"><div class="label">Penugasan SELESAI</div><div class="value">1</div></div>
+      <div class="kpi"><div class="label">Penugasan Aktif</div><div class="value">1</div></div>
+      <div class="kpi"><div class="label">Total Events</div><div class="value">15</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Penugasan v4 — Status Terkini</div>
+      <div class="card-body">
+        <input class="search-box" id="search-pen" placeholder="Filter..." onkeyup="filterTable('search-pen','tbl-pen')">
+        <table id="tbl-pen">
+          <thead><tr><th>Penugasan</th><th>Stage</th><th>Events</th><th>Last Action</th><th>Last Actor</th><th>Last Timestamp</th></tr></thead>
+          <tbody><tr>
+            <td>CONTOH-2026-05-001-reviu-pengadaan-bakti</td>
+            <td><span class="badge ">KKP</span></td>
+            <td>6</td>
+            <td>VALIDATION_FAILED</td>
+            <td>Pak Andi</td>
+            <td><span class="timestamp">2026-05-02T19:07:55+07:00</span></td>
+        </tr><tr>
+            <td>CONTOH-HAPPY-PATH-saipi</td>
+            <td><span class="badge badge-selesai">DONE</span></td>
+            <td>9</td>
+            <td>INGEST_TO_WIKI</td>
+            <td>Pak Andi</td>
+            <td><span class="timestamp">2026-05-02T19:38:21+07:00</span></td>
+        </tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Total Events per Action (semua penugasan)</div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>Action</th><th>Total</th></tr></thead>
+          <tbody><tr><td><code>VALIDATION_FAILED</code></td><td>3</td></tr><tr><td><code>INGEST_TO_WIKI</code></td><td>3</td></tr><tr><td><code>VALIDATION_PASSED</code></td><td>2</td></tr><tr><td><code>ROLE_LOGIN</code></td><td>1</td></tr><tr><td><code>TASK_STARTED</code></td><td>1</td></tr><tr><td><code>KKP_TEMUAN_ADDED</code></td><td>1</td></tr><tr><td><code>SASARAN_COMPLETED</code></td><td>1</td></tr><tr><td><code>GATE_PASSED</code></td><td>1</td></tr><tr><td><code>LHP_FINALIZED</code></td><td>1</td></tr><tr><td><code>INTEGRAL_EXPORT</code></td><td>1</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    </div><div class="panel" id="panel-pgw"><div class="kpi-grid"><div class="kpi"><div class="label">Total Penugasan dengan KKP</div><div class="value">2</div></div><div class="kpi"><div class="label">Total Temuan</div><div class="value">2</div></div><div class="kpi done"><div class="label">LHP Final Tersedia</div><div class="value">1</div></div></div><div class="card"><div class="card-header">Hasil Pengawasan — KKP &amp; LHP per Penugasan</div><div class="card-body"><input class="search-box" id="search-pgw" placeholder="Filter..." onkeyup="filterTable('search-pgw','tbl-pgw')"><table id="tbl-pgw"><thead><tr><th>Penugasan / ST</th><th>Jenis</th><th>Obyek</th><th># Temuan</th><th>Distribusi Anggota</th><th>LHP File</th></tr></thead><tbody><tr><td><strong>CONTOH-2026-05-001-reviu-pengadaan-bakti</strong><br><span class='muted'>ST-001/IJ.2/HK.01/05/2026</span></td><td>reviu-pengadaan</td><td>Paket Pengadaan Layanan SATRIA-1 BAKTI</td><td>1</td><td><span class="dist-badge">Sarah Aulia: 1</span></td><td><code>(belum ada)</code></td></tr><tr><td colspan='6' style='padding:0 12px 16px'><details><summary class='muted'>Lihat detail temuan (1) — kondisi, kriteria, sebab, akibat</summary>
+                <div class="temuan-card">
+                  <div class="temuan-head">
+                    <code>T-001</code> · sasaran <code>S-01</code> ·
+                    Sarah Aulia
+                    <span class="badge badge-active" style="float:right">DRAFT</span>
+                  </div>
+                  <div class="temuan-judul">Kerangka Acuan Kerja tidak memuat indikator SLA layanan SATRIA-1</div>
+                  <div class="kksa-row"><span class="kksa-label">Kondisi</span>
+                    <div class="kksa-val">KAK Pengadaan Layanan SATRIA-1 (file 03-KAK-SATRIA1.pdf hal. 12-15) tidak mencantumkan indikator Service Level Agreement (SLA) yang terukur untuk uptime layanan satelit. Hanya disebut &#x27;layanan tersedia sepanjang tahun&#x27; tanpa angka uptime, RTO, atau RPO.</div></div>
+                  <div class="kksa-row"><span class="kksa-label">Kriteria</span>
+                    <div class="kksa-val">Perpres 16/2018 Pasal 19 ayat (1) jo. Perka LKPP 12/2021 menyatakan KAK wajib memuat spesifikasi teknis terukur termasuk SLA untuk pengadaan jasa.</div></div>
+                  
+                  <div class="kksa-row"><span class="kksa-label">Akibat</span>
+                    <div class="kksa-val">Penyedia tidak dapat dievaluasi kinerjanya secara objektif; risiko sengketa kontrak meningkat karena tidak ada parameter SLA yang disepakati di awal.</div></div>
+                  <div class="kksa-row"><span class="kksa-label">Dokumen sumber</span>
+                    <div class="kksa-val"><code>03-KAK-SATRIA1.pdf hal. 12-15</code></div></div>
+                </div></details></td></tr><tr><td><strong>CONTOH-HAPPY-PATH-saipi</strong><br><span class='muted'>ST-002/IJ.2/HK.01/05/2026</span></td><td>reviu-pengadaan</td><td>KAK SATRIA-1</td><td>1</td><td><span class="dist-badge">Sarah Aulia: 1</span></td><td><code>LHP-SUBSTANSI-2026-05-002.docx</code></td></tr><tr><td colspan='6' style='padding:0 12px 16px'><details><summary class='muted'>Lihat detail temuan (1) — kondisi, kriteria, sebab, akibat</summary>
+                <div class="temuan-card">
+                  <div class="temuan-head">
+                    <code>T-001</code> · sasaran <code>S-01</code> ·
+                    Sarah Aulia
+                    <span class="badge badge-active" style="float:right">DRAFT</span>
+                  </div>
+                  <div class="temuan-judul">KAK SATRIA-1 tidak memuat indikator SLA yang terukur</div>
+                  <div class="kksa-row"><span class="kksa-label">Kondisi</span>
+                    <div class="kksa-val">KAK halaman 12-15 tidak mencantumkan indikator SLA terukur untuk uptime layanan satelit.</div></div>
+                  <div class="kksa-row"><span class="kksa-label">Kriteria</span>
+                    <div class="kksa-val">Perpres 16/2018 Pasal 19 ayat (1) jo. Perka LKPP 12/2021.</div></div>
+                  
+                  <div class="kksa-row"><span class="kksa-label">Akibat</span>
+                    <div class="kksa-val">Penyedia tidak dapat dievaluasi kinerjanya secara objektif.</div></div>
+                  <div class="kksa-row"><span class="kksa-label">Dokumen sumber</span>
+                    <div class="kksa-val"><code>03-KAK-SATRIA1.pdf hal. 12-15</code></div></div>
+                </div></details></td></tr></tbody></table></div></div></div><div style="margin-top:32px;text-align:center" class="muted">Sumber: pemantauan-isu-risiko-trello.md · tlhp-index.md · _AUDIT-TRAIL/*.jsonl · _KKP/temuan.json<br>Auto-rebuild oleh scripts/build_dashboard.py — sinkron antara dashboard.html sistem &amp; wiki.</div></div><script>
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+function filterTable(inputId, tableId) {
+  var q = document.getElementById(inputId).value.toLowerCase();
+  document.querySelectorAll('#' + tableId + ' tbody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script></body></html>

@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://itjen.komdigi.go.id/schemas/sasaran-assignment.schema.json",
+  "title": "Sasaran Assignment — pembagian sasaran ke anggota tim",
+  "description": "Diekstrak Task 01 dari PKP. Sumber kebenaran 'siapa mengerjakan sasaran apa'. Dipakai Task 03 untuk filter dan Task 04 untuk completeness check.",
+  "type": "object",
+  "required": ["penugasan_id", "extracted_from_pkp", "extracted_at", "sasaran"],
+  "properties": {
+    "penugasan_id":       { "type": "string" },
+    "extracted_from_pkp": { "type": "string", "description": "Nama file PKP sumber." },
+    "extracted_at":       { "type": "string", "format": "date-time" },
+    "sasaran": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["sasaran_id", "deskripsi", "assigned_to", "status"],
+        "properties": {
+          "sasaran_id": { "type": "string", "pattern": "^S-[0-9]{2}$" },
+          "deskripsi":  { "type": "string", "minLength": 10 },
+          "langkah_kerja": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "assigned_to": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["nama_lengkap", "role_kode"],
+              "properties": {
+                "nama_lengkap": { "type": "string" },
+                "role_kode":    { "type": "string", "enum": ["AT", "KT", "PT", "PM"] }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["BELUM_DIKERJAKAN", "SEDANG_DIKERJAKAN", "SELESAI_KKP", "DIREVIU_KT", "FINAL"]
+          },
+          "id_temuan_terkait": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^T-[0-9]{3}$" }
+          },
+          "tanggal_selesai_kkp": { "type": ["string", "null"], "format": "date-time" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

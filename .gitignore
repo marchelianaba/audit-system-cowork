@@ -1,0 +1,70 @@
+# ---------- OneDrive / Windows ----------
+desktop.ini
+Thumbs.db
+ehthumbs.db
+.tmp.driveupload/
+.tmp.drivedownload/
+*.lnk
+
+# ---------- MS Office ----------
+# Temp lock files yang dibuat Word/Excel saat dokumen dibuka
+~$*
+~$*.docx
+~$*.xlsx
+~$*.pptx
+*.tmp
+
+# ---------- Backup / bekas edit ----------
+*.bak
+*.bak[0-9]
+*.old
+*.orig
+
+# ---------- Python ----------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- Editor / IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ---------- Secrets (jaga-jaga) ----------
+# Jangan pernah commit file yang menyimpan token/credential mentah
+**/github token.txt
+**/*token*.txt
+**/*.pem
+**/*.key
+.env
+.env.local
+.env.*.local
+credentials.json
+secrets.json
+config.secret.*
+
+# ---------- Output generated yang bersifat laporan internal ----------
+# File-file ini memuat status operasional / temuan mentah.
+# Untuk repo SHARE: uncomment empat baris di bawah agar tidak ter-push.
+# Untuk repo ARSIP LENGKAP (private), biarkan ter-track.
+dashboard.md
+ringkasan-mingguan/
+feedback/
+penugasan/
+
+# ---------- Data audit asli (JANGAN ke repo PUBLIC) ----------
+# Berisi dokumen auditee asli (TOR, RAB, KKP, laporan BPKP, output PK SPIP).
+# Ditambahkan 2026-09-29 saat push ke github.com/marchelianaba/audit-system-cowork (repo public).
+test/
+Claude outputs/
+bahan SPIP/
+_to_delete/

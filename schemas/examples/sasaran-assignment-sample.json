@@ -1,0 +1,52 @@
+{
+  "penugasan_id": "2026-05-001-reviu-pengadaan-bakti",
+  "extracted_from_pkp": "PKP-2026-05-001.docx",
+  "extracted_at": "2026-05-02T13:30:00+07:00",
+  "sasaran": [
+    {
+      "sasaran_id": "S-01",
+      "deskripsi": "Memastikan KAK memuat spesifikasi teknis terukur dan SLA.",
+      "langkah_kerja": [
+        "Periksa kelengkapan KAK terhadap Perpres 16/2018 Ps. 19.",
+        "Verifikasi indikator SLA (uptime, RTO, RPO).",
+        "Bandingkan dengan KAK pengadaan satelit sejenis (BRIN/Telkomsat)."
+      ],
+      "assigned_to": [
+        { "nama_lengkap": "Sarah Aulia", "role_kode": "AT" }
+      ],
+      "status": "BELUM_DIKERJAKAN",
+      "id_temuan_terkait": [],
+      "tanggal_selesai_kkp": null
+    },
+    {
+      "sasaran_id": "S-02",
+      "deskripsi": "Memastikan HPS disusun dengan komponen biaya yang lengkap dan dapat dipertanggungjawabkan.",
+      "langkah_kerja": [
+        "Periksa metode penyusunan HPS.",
+        "Cek bukti pendukung tiap komponen biaya.",
+        "Verifikasi mark-up dan kontingensi."
+      ],
+      "assigned_to": [
+        { "nama_lengkap": "Budi Hartono", "role_kode": "AT" }
+      ],
+      "status": "BELUM_DIKERJAKAN",
+      "id_temuan_terkait": [],
+      "tanggal_selesai_kkp": null
+    },
+    {
+      "sasaran_id": "S-03",
+      "deskripsi": "Memastikan proses evaluasi penawaran sesuai metode tender yang dipilih.",
+      "langkah_kerja": [
+        "Periksa berita acara evaluasi administrasi/teknis/harga.",
+        "Verifikasi kepatuhan pada dokumen pemilihan."
+      ],
+      "assigned_to": [
+        { "nama_lengkap": "Sarah Aulia", "role_kode": "AT" },
+        { "nama_lengkap": "Budi Hartono", "role_kode": "AT" }
+      ],
+      "status": "BELUM_DIKERJAKAN",
+      "id_temuan_terkait": [],
+      "tanggal_selesai_kkp": null
+    }
+  ]
+}

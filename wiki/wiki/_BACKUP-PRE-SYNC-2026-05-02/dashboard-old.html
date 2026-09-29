@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Inspektorat II — Progres Penanganan Risiko & Isu</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    color: white;
+    padding: 28px 32px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.3px; }
+  .header .subtitle { font-size: 12px; opacity: 0.65; margin-top: 4px; }
+  .header .meta { text-align: right; font-size: 12px; opacity: 0.7; }
+  .header .meta strong { display: block; font-size: 13px; opacity: 0.9; }
+
+  /* ── Layout ── */
+  .container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 48px; }
+
+  /* ── Stat cards ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    border-top: 4px solid #e5e7eb;
+  }
+  .stat-card.red   { border-color: #ef4444; }
+  .stat-card.amber { border-color: #f59e0b; }
+  .stat-card.blue  { border-color: #3b82f6; }
+  .stat-card.gray  { border-color: #9ca3af; }
+  .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #6b7280; font-weight: 600; }
+  .stat-card .number { font-size: 36px; font-weight: 800; margin: 6px 0 2px; line-height: 1; }
+  .stat-card.red   .number { color: #ef4444; }
+  .stat-card.amber .number { color: #f59e0b; }
+  .stat-card.blue  .number { color: #3b82f6; }
+  .stat-card.gray  .number { color: #9ca3af; }
+  .stat-card .sublabel { font-size: 11px; color: #9ca3af; }
+
+  /* ── Section ── */
+  .section {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header h2 { font-size: 14px; font-weight: 700; color: #111827; }
+  .section-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .icon-blue  { background: #eff6ff; }
+  .icon-red   { background: #fef2f2; }
+  .icon-amber { background: #fffbeb; }
+  .icon-purple{ background: #f5f3ff; }
+  .icon-green { background: #f0fdf4; }
+  .section-body { padding: 0; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: #f9fafb;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    color: #374151;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+
+  /* ── Sub-section header inside table ── */
+  .sub-header td {
+    background: #f9fafb;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    padding: 8px 16px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-red    { background: #fef2f2; color: #dc2626; }
+  .badge-amber  { background: #fffbeb; color: #d97706; }
+  .badge-gray   { background: #f3f4f6; color: #6b7280; }
+  .badge-blue   { background: #eff6ff; color: #2563eb; }
+  .badge-green  { background: #f0fdf4; color: #16a34a; }
+  .badge-purple { background: #f5f3ff; color: #7c3aed; }
+  .badge-orange { background: #fff7ed; color: #c2410c; }
+
+  /* ── Deadline pill ── */
+  .deadline {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+  .deadline.normal {
+    background: #f9fafb;
+    color: #6b7280;
+    border-color: #e5e7eb;
+  }
+
+  /* ── Summary table ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1px;
+    background: #e5e7eb;
+  }
+  .summary-cell {
+    background: white;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .summary-cell .cat { font-size: 12px; font-weight: 600; color: #374151; }
+  .summary-cell .bars { display: flex; gap: 6px; align-items: center; }
+  .summary-cell .bar-item {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; color: #6b7280;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .dot-red    { background: #ef4444; }
+  .dot-amber  { background: #f59e0b; }
+  .dot-gray   { background: #d1d5db; }
+  .dot-green  { background: #22c55e; }
+  .bar-num { font-weight: 700; color: #111827; }
+
+  /* ── Nilai tag ── */
+  .nilai {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #374151;
+    background: #f3f4f6;
+    padding: 1px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  /* ── Note text ── */
+  .note { font-size: 12px; color: #6b7280; }
+
+  /* ── Area tag ── */
+  .area-tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 11px;
+    margin-top: 8px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .header { flex-direction: column; align-items: flex-start; }
+    .header .meta { text-align: left; }
+    th, td { padding: 9px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="subtitle">KEMENTERIAN KOMUNIKASI DAN DIGITAL RI — INSPEKTORAT JENDERAL</div>
+    <h1>Dashboard Progres Penanganan Risiko &amp; Isu</h1>
+    <div class="subtitle">Inspektorat II · TA 2026</div>
+  </div>
+  <div class="meta">
+    <strong>17 April 2026</strong>
+    Terakhir diperbarui
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── Stat Cards ── -->
+  <div class="stat-grid">
+    <div class="stat-card red">
+      <div class="label">Mendesak</div>
+      <div class="number">4</div>
+      <div class="sublabel">item perlu aksi segera</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="label">Dalam Proses</div>
+      <div class="number">14</div>
+      <div class="sublabel">item sedang ditangani</div>
+    </div>
+    <div class="stat-card gray">
+      <div class="label">Belum Ditindaklanjuti</div>
+      <div class="number">17</div>
+      <div class="sublabel">item perlu perhatian</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="label">Audit Aktif</div>
+      <div class="number">1</div>
+      <div class="sublabel">penugasan berjalan</div>
+    </div>
+  </div>
+
+  <!-- ── Ringkasan per Kategori ── -->
+  <div class="section" style="margin-bottom:20px;">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📊</div>
+      <h2>Ringkasan per Kategori</h2>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-cell">
+        <div class="cat">Audit Aktif</div>
+        <div class="bars">
+          <div class="bar-item"><div class="dot dot-amber"></div><span class="bar-num">1</span> Dalam Proses</div>
+        </div>
+      </div>
+      <div class="summary-cell">
+        <div class="cat">Isu Strategis</div>
+        <div class="bars">
+          <div class="bar-item"><div class="dot dot-red"></div><span class="bar-num">1</span> Mendesak</div>
+          <div class="bar-item"><div class="dot dot-amber"></div><span class="bar-num">4</span> Dalam Proses</div>
+        </div>
+      </div>
+      <div class="summary-cell">
+        <div class="cat">Temuan Audit</div>
+        <div class="bars">
+          <div class="bar-item"><div class="dot dot-red"></div><span class="bar-num">1</span> Mendesak</div>
+          <div class="bar-item"><div class="dot dot-amber"></div><span class="bar-num">3</span> Dalam Proses</div>
+          <div class="bar-item"><div class="dot dot-gray"></div><span class="bar-num">5</span> Belum</div>
+        </div>
+      </div>
+      <div class="summary-cell">
+        <div class="cat">Rekomendasi IGRS</div>
+        <div class="bars">
+          <div class="bar-item"><div class="dot dot-red"></div><span class="bar-num">2</span> Mendesak</div>
+          <div class="bar-item"><div class="dot dot-amber"></div><span class="bar-num">2</span> Dalam Proses</div>
+        </div>
+      </div>
+      <div class="summary-cell">
+        <div class="cat">Risiko HIGH Wasdig</div>
+        <div class="bars">
+          <div class="bar-item"><div class="dot dot-amber"></div><span class="bar-num">1</span> Dalam Proses</div>
+          <div class="bar-item"><div class="dot dot-gray"></div><span class="bar-num">7</span> Belum</div>
+        </div>
+      </div>
+      <div class="summary-cell">
+        <div class="cat">Risiko HIGH DJED</div>
+        <div class="bars">
+          <div class="bar-item"><div class="dot dot-amber"></div><span class="bar-num">3</span> Dalam Proses</div>
+          <div class="bar-item"><div class="dot dot-gray"></div><span class="bar-num">5</span> Belum</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 1. Audit Aktif ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔍</div>
+      <h2>1. Penugasan Audit Aktif</h2>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr>
+          <th>Penugasan</th><th>Status</th><th>Fase</th><th>Catatan</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Audit Kinerja IGRS</strong></td>
+            <td><span class="badge badge-amber">🟡 Dalam Proses</span></td>
+            <td><span class="badge badge-blue">Survei Pendahuluan</span></td>
+            <td class="note">Permohonan diterima 16 Apr 2026. 5 area sasaran: kesiapan sistem, akurasi klasifikasi, mekanisme RC, keamanan sistem, tata kelola kemitraan.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 2. Isu Strategis ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">⚠️</div>
+      <h2>2. Isu Strategis</h2>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr>
+          <th>Isu</th><th>Unit</th><th>Prioritas</th><th>Status</th><th>Tenggat</th><th>Catatan</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Kebocoran data developer IGRS</strong><br><span class="note">~2.000 email, 4 game AAA bocor</span></td>
+            <td><span class="area-tag">DJED/PDSI</span></td>
+            <td><span class="badge badge-red">🔴 MENDESAK</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td><span class="deadline">~28 Apr 2026</span><br><span class="note">14 hari kerja UU PDP</span></td>
+            <td class="note">API tanpa autentikasi; kewajiban notifikasi korban dan laporan ke Lembaga PDP. Apakah sudah dinotifikasi?</td>
+          </tr>
+          <tr>
+            <td><strong>Inkonsistensi rating IGRS</strong><br><span class="note">Nukitashi 3+, GTA V RC, dll.</span></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-amber">🟡 Tinggi</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td><span class="deadline normal">—</span></td>
+            <td class="note">Evidence publik, paling mudah dibuktikan. Termasuk area sasaran audit.</td>
+          </tr>
+          <tr>
+            <td><strong>Status RC tidak transparan</strong><br><span class="note">Balatro dual data di database internal</span></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-amber">🟡 Tinggi</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td><span class="deadline normal">—</span></td>
+            <td class="note">Moratorium RC otomatis direkomendasikan. Klaim "bug Steam" belum diverifikasi independen.</td>
+          </tr>
+          <tr>
+            <td><strong>Pemblokiran @magdaleneid</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-amber">🟡 Tinggi</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td><span class="deadline normal">—</span></td>
+            <td class="note">Koordinasi dengan Dewan Pers.</td>
+          </tr>
+          <tr>
+            <td><strong>Isu DBS — alih status aset ke LPP TVRI</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-purple">🟡 Medium</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td><span class="deadline normal">Juli 2026</span></td>
+            <td class="note">Komdigi bersurat 11 Mar 2026; menunggu balasan TVRI.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 3. Temuan Audit ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-amber">📋</div>
+      <h2>3. Temuan Audit — Perlu Tindak Lanjut</h2>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr>
+          <th>Temuan</th><th>Sumber</th><th>Nilai (Rp)</th><th>Status</th><th>Catatan</th>
+        </tr></thead>
+        <tbody>
+          <tr class="sub-header"><td colspan="5">TKPPSE</td></tr>
+          <tr>
+            <td><strong>Tagihan melebihi bukti — PT Telkom &amp; Moratel</strong></td>
+            <td><span class="badge badge-gray">B-51</span></td>
+            <td><span class="nilai">36.851.550</span></td>
+            <td><span class="badge badge-blue">Menunggu BPKP</span></td>
+            <td class="note">Menunggu hasil audit BPKP sebelum dapat/tidak dapat diyakini.</td>
+          </tr>
+          <tr>
+            <td><strong>SLA di bawah minimum 99,5%</strong></td>
+            <td><span class="badge badge-gray">B-51</span></td>
+            <td><span class="nilai">842.024.701</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td class="note">Bagian tagihan tahap 3 yang tidak dapat diyakini.</td>
+          </tr>
+          <tr>
+            <td><strong>Tagihan Desember 2025 tanpa kontrak</strong></td>
+            <td><span class="badge badge-gray">B-51</span></td>
+            <td><span class="nilai">2.688.141.783</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note">Terkait perubahan SOTK Kominfo→Komdigi.</td>
+          </tr>
+          <tr>
+            <td><strong>6 PJT belum berkontrak TA 2026</strong><br><span class="note">Moratel + Lintasarta signifikan</span></td>
+            <td><span class="badge badge-gray">B-34</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td class="note">Moratel: topologi terenkripsi — TCP Reset tidak dapat baca trafik. Lintasarta: confidentiality SUFI. Perlu CBA dan timeline.</td>
+          </tr>
+          <tr>
+            <td><strong>Kajian teknis TKPPSE belum diimplementasikan</strong></td>
+            <td><span class="badge badge-gray">B-34</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note">Redesain dikaji TW II 2026, eksekusi TA 2027. Perlu rencana aksi 2026.</td>
+          </tr>
+          <tr>
+            <td><strong>68% pagu Wasdig masih draft di SIRUP</strong></td>
+            <td><span class="badge badge-gray">B-33</span></td>
+            <td><span class="nilai">236.703.221.000</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note">Per 27 Jan 2026. Perlu segera difinalisasi.</td>
+          </tr>
+
+          <tr class="sub-header"><td colspan="5">Pengadaan &amp; Kontrak</td></tr>
+          <tr>
+            <td><strong>Adendum ganda nomor sama (AD01)</strong><br><span class="note">Server crawling CSE</span></td>
+            <td><span class="badge badge-gray">B-41</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note">Perlu pembatalan resmi salah satu adendum.</td>
+          </tr>
+
+          <tr class="sub-header"><td colspan="5">Manajemen Risiko &amp; Tata Kelola</td></tr>
+          <tr>
+            <td><strong>Pedoman MR usang</strong><br><span class="note">Masih Permenkominfo 6/2017</span></td>
+            <td><span class="badge badge-gray">B-70</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note"></td>
+          </tr>
+          <tr>
+            <td><strong>Three Lines Model belum optimal</strong></td>
+            <td><span class="badge badge-gray">B-70</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note"></td>
+          </tr>
+          <tr>
+            <td><strong>SIMR belum ada early warning &amp; belum terintegrasi</strong></td>
+            <td><span class="badge badge-gray">B-70</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note">2 catatan sekaligus.</td>
+          </tr>
+          <tr>
+            <td><strong>Belum ada standar kompetensi SDM MR &amp; prosedur insiden</strong></td>
+            <td><span class="badge badge-gray">B-70</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note">2 catatan sekaligus.</td>
+          </tr>
+
+          <tr class="sub-header"><td colspan="5">LKj</td></tr>
+          <tr>
+            <td><strong>Data LKj Kemkomdigi tidak dapat diverifikasi sumbernya</strong><br><span class="note">Belum ada analisis efisiensi SDM</span></td>
+            <td><span class="badge badge-gray">B-69</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note"></td>
+          </tr>
+          <tr>
+            <td><strong>SOP Wasdig masih gunakan nomenklatur lama</strong><br><span class="note">Belum ada Renstra baru; belum ada benchmark</span></td>
+            <td><span class="badge badge-gray">B-67</span></td>
+            <td><span class="nilai">—</span></td>
+            <td><span class="badge badge-gray">Belum Ditindaklanjuti</span></td>
+            <td class="note"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 4. Rekomendasi IGRS ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">🎯</div>
+      <h2>4. Rekomendasi IGRS — Jangka Pendek (Paling Mendesak)</h2>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr>
+          <th style="width:32px">#</th><th>Rekomendasi</th><th>Status</th><th>Catatan</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:#6b7280;">1</td>
+            <td><strong>Notifikasi insiden data</strong><br><span class="note">Ke seluruh developer yang datanya bocor (Pasal 46 UU PDP, 14 hari kerja)</span></td>
+            <td><span class="badge badge-red">🔴 MENDESAK</span></td>
+            <td class="note"><span class="deadline">Tenggat ~28 Apr 2026</span><br>Apakah sudah dilaksanakan?</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#6b7280;">2</td>
+            <td><strong>Moratorium RC otomatis</strong><br><span class="note">Hingga verifikasi manual selesai</span></td>
+            <td><span class="badge badge-red">🔴 MENDESAK</span></td>
+            <td class="note">Mencegah pemblokiran karya baru selama audit berjalan.</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#6b7280;">3</td>
+            <td><strong>Audit keamanan darurat API IGRS</strong><br><span class="note">Autentikasi, otorisasi, akses file submission</span></td>
+            <td><span class="badge badge-amber">🟡 Dalam Proses</span></td>
+            <td class="note">Tercakup dalam Audit IT PDSI yang sedang berjalan.</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:#6b7280;">4</td>
+            <td><strong>Klarifikasi data publik</strong><br><span class="note">Samakan database internal igrs.id dengan tampilan publik</span></td>
+            <td><span class="badge badge-amber">🟡 Dalam Proses</span></td>
+            <td class="note">Diverifikasi dalam area sasaran audit.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 5. Peta Risiko HIGH ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🗺️</div>
+      <h2>5. Peta Risiko HIGH</h2>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead><tr>
+          <th>Risiko</th><th>Ditjen</th><th>Area</th><th>Status</th><th>Catatan</th>
+        </tr></thead>
+        <tbody>
+          <!-- DJED - IGRS -->
+          <tr>
+            <td><strong>Tata Kelola &amp; Akurasi Klasifikasi IGRS</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-red">IGRS</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td class="note">Audit Kinerja Inspektorat II berjalan.</td>
+          </tr>
+          <tr>
+            <td><strong>Keamanan Sistem IGRS (kebocoran data)</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-red">IGRS</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td class="note">Audit IT PDSI berjalan.</td>
+          </tr>
+          <tr>
+            <td><strong>Mekanisme RC dan Transparansi IGRS</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-red">IGRS</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td class="note">Termasuk area sasaran audit.</td>
+          </tr>
+          <tr>
+            <td><strong>Alih Status DBS</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-purple">DBS</span></td>
+            <td><span class="badge badge-amber">Dalam Proses</span></td>
+            <td class="note">Bersurat ke TVRI 11 Mar 2026; target Juli 2026.</td>
+          </tr>
+          <!-- DJED - tanpa update -->
+          <tr>
+            <td><strong>Tata Kelola Garuda Spark</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-gray">Garuda Spark</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">Detail belum tersedia.</td>
+          </tr>
+          <tr>
+            <td><strong>Tata Kelola Bantuan IoT</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-gray">IoT</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">Detail belum tersedia.</td>
+          </tr>
+          <tr>
+            <td><strong>Akuntabilitas Belanja PSO POS</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-gray">PSO POS</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">—</td>
+          </tr>
+          <tr>
+            <td><strong>Akuntabilitas Belanja Pengadaan Perangkat</strong></td>
+            <td><span class="area-tag">DJED</span></td>
+            <td><span class="badge badge-gray">Pengendalian</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">—</td>
+          </tr>
+          <!-- Wasdig -->
+          <tr>
+            <td><strong>Akuntabilitas Belanja TKPPSE</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-orange">TKPPSE</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">Terkait dengan temuan LHA audit tahap 1–3.</td>
+          </tr>
+          <tr>
+            <td><strong>Redesain TKPPSE</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-orange">TKPPSE</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">Kajian TW II 2026; eksekusi TA 2027.</td>
+          </tr>
+          <tr>
+            <td><strong>Akuntabilitas Belanja CSE &amp; Verifikator</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-orange">CSE</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">Terkait LHR Server Crawling.</td>
+          </tr>
+          <tr>
+            <td><strong>Tumpang Tindih CSE dan CNS</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-orange">CSE</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">Perlu verifikasi definisi dan dampak.</td>
+          </tr>
+          <tr>
+            <td><strong>Isu Kinerja PSE</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-gray">PSE</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">—</td>
+          </tr>
+          <tr>
+            <td><strong>Ketersediaan Anggaran PSE</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-gray">PSE</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">—</td>
+          </tr>
+          <tr>
+            <td><strong>Positioning PANDI</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-gray">PANDI</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">—</td>
+          </tr>
+          <tr>
+            <td><strong>Arah Direktorat Penyidikan</strong></td>
+            <td><span class="area-tag">Wasdig</span></td>
+            <td><span class="badge badge-gray">Penyidikan</span></td>
+            <td><span class="badge badge-gray">Belum Ada Update</span></td>
+            <td class="note">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    Inspektorat II · Kementerian Komunikasi dan Digital RI · Diperbarui 17 April 2026
+  </div>
+
+</div>
+</body>
+</html>

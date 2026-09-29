@@ -1,0 +1,11 @@
+# Dokumen sumber — sensitif, tidak dipush ke remote
+raw/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.obsidian/
+*.tmp
